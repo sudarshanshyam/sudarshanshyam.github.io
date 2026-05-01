@@ -280,6 +280,10 @@ export function getTexts(): Text[] {
   return texts.toSorted((a, b) => compareDates(a.lastReadAt, b.lastReadAt));
 }
 
+export function getTextSlugs(): string[] {
+  return texts.map((text) => text.slug);
+}
+
 export function getTextBySlug(slug: string): Text | undefined {
   return texts.find((text) => text.slug === slug);
 }
