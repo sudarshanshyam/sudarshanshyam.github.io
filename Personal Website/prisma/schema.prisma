@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TextStatus {
+  ACTIVE
+  PARKED
+  FINISHED
+}
+
+model Text {
+  id                String       @id @default(cuid())
+  slug              String       @unique
+  title             String
+  author            String
+  format            String
+  status            TextStatus   @default(ACTIVE)
+  currentLocation   String
+  nextEntryPoint    String
+  backlogReason     String?
+  focusNote         String?
+  lastReadAt        DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  sessions          Session[]
+  recallNotes       RecallNote[]
+}
+
+model Session {
+  id               String   @id @default(cuid())
+  textId           String
+  startedAt        DateTime
+  minutes          Int
+  startLocation    String
+  endLocation      String
+  energy           Int
+  note             String?
+  createdAt        DateTime @default(now())
+  text             Text     @relation(fields: [textId], references: [id], onDelete: Cascade)
+
+  @@index([textId, startedAt(sort: Desc)])
+}
+
+model RecallNote {
+  id          String   @id @default(cuid())
+  textId      String
+  prompt      String
+  response    String
+  sourceHint  String
+  createdAt   DateTime @default(now())
+  text        Text     @relation(fields: [textId], references: [id], onDelete: Cascade)
+
+  @@index([textId, createdAt(sort: Desc)])
+}
